@@ -1,0 +1,15 @@
+[project]
+name = "IfcCrossClash"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "bcf-client>=0.8.5",
+    "ifcclash>=0.8.5",
+    "ifcopenshell>=0.8.5",
+    "ifcpatch>=0.8.5",
+    "loguru>=0.7.3",
+    "numpy>=2.4.6",
+    "typer>=0.26.7",
+]
