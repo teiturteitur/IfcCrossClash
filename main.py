@@ -8,8 +8,7 @@ from pathlib import Path
 
 # Load module with non-standard name using importlib
 _spec = importlib.util.spec_from_file_location(
-    "clash_module", 
-    str(Path(__file__).parent / "src" / "1105_clash.py")
+    "clash_module", str(Path(__file__).parent / "src" / "1105_clash.py")
 )
 _clash_module = importlib.util.module_from_spec(_spec)
 sys.modules["clash_module"] = _clash_module
@@ -87,10 +86,17 @@ def main():
     working_dir = aligned_dir if args.align else ifc_source_dir
 
     try:
+        # Step 1.5: Clean aligned files for clash detection (faster processing)
+        # if args.align:
+        print("\n" + "=" * 60)
+        print("STEP 1: CLEANING ALIGNED FILES FOR CLASH DETECTION")
+        print("=" * 60)
+        _clean_aligned_ifc_files(args.ifc_dir)
+
         # Step 1: Alignment (only if --align is specified)
         if args.align:
             print("\n" + "=" * 60)
-            print("STEP 1: IFC ALIGNMENT")
+            print("STEP 1.5: IFC ALIGNMENT")
             print("=" * 60)
             success = align_ifc_files(
                 ifc_dir=str(ifc_source_dir),
@@ -101,13 +107,6 @@ def main():
                 return False
         else:
             print("\n⊘ Alignment disabled (using files directly from ifc-dir)")
-
-        # Step 1.5: Clean aligned files for clash detection (faster processing)
-        if args.align:
-            print("\n" + "=" * 60)
-            print("STEP 1.5: CLEANING ALIGNED FILES FOR CLASH DETECTION")
-            print("=" * 60)
-            _clean_aligned_ifc_files(str(aligned_dir))
 
         # Step 2: Clash Detection
         print("\n" + "=" * 60)

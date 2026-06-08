@@ -49,12 +49,12 @@ def setup_logging(verbose: bool = False) -> logging.Logger:
     # Remove any existing handlers to avoid conflicts
     for handler in logging.root.handlers[:]:
         logging.root.removeHandler(handler)
-    
+
     level = logging.INFO if verbose else logging.WARNING
     logging.basicConfig(
         level=level,
         format="%(levelname)s - %(message)s",
-        force=True  # Force reconfiguration
+        force=True,  # Force reconfiguration
     )
     return logging.getLogger("ClashDetection")
 
@@ -73,10 +73,10 @@ def find_ifc_files(directory: str) -> list[str]:
 
 def _clean_ifc_for_clash_detection(ifc_file) -> None:
     """Remove property sets and other non-geometric data from IFC file.
-    
+
     This significantly speeds up clash detection by keeping only geometry.
     Modifies the ifc_file in-place.
-    
+
     Args:
         ifc_file: ifcopenshell.file object to clean
     """
@@ -87,7 +87,7 @@ def _clean_ifc_for_clash_detection(ifc_file) -> None:
             ifc_file.remove(pset)
         except Exception:
             pass
-    
+
     # Remove all IfcQuantitySet instances
     quantity_sets = ifc_file.by_type("IfcQuantitySet")
     for qset in quantity_sets:
@@ -95,7 +95,7 @@ def _clean_ifc_for_clash_detection(ifc_file) -> None:
             ifc_file.remove(qset)
         except Exception:
             pass
-    
+
     # Remove all IfcRelDefinesByProperties relationships
     relations = ifc_file.by_type("IfcRelDefinesByProperties")
     for rel in relations:
@@ -103,7 +103,7 @@ def _clean_ifc_for_clash_detection(ifc_file) -> None:
             ifc_file.remove(rel)
         except Exception:
             pass
-    
+
     # Remove all IfcMaterial instances (not needed for clash detection)
     materials = ifc_file.by_type("IfcMaterial")
     for mat in materials:
@@ -111,7 +111,7 @@ def _clean_ifc_for_clash_detection(ifc_file) -> None:
             ifc_file.remove(mat)
         except Exception:
             pass
-    
+
     # Remove all IfcMaterialDefinitionRepresentation instances
     mat_defs = ifc_file.by_type("IfcMaterialDefinitionRepresentation")
     for mat_def in mat_defs:
@@ -134,10 +134,14 @@ def _print_progress(current: int, total: int, label: str = "") -> None:
     bar_length = 30
     filled = int((current / total) * bar_length) if total > 0 else 0
     bar = "█" * filled + "░" * (bar_length - filled)
-    
+
     label_str = f" {label}" if label else ""
-    print(f"\r  [{bar}] {percentage:3d}% ({current}/{total}){label_str}", end="", flush=True)
-    
+    print(
+        f"\r  [{bar}] {percentage:3d}% ({current}/{total}){label_str}",
+        end="",
+        flush=True,
+    )
+
     if current == total:
         print()  # New line when complete
 
@@ -160,7 +164,7 @@ def export_pair_json(clash_set: dict, output_file: str) -> None:
 
 def export_to_bcf(clasher: Clasher, ifc_files: list[str], output_file: str) -> None:
     """Export clash results to BCF format (bcfzip) with colored visualization.
-    
+
     Creates a BCF file where:
     - Clashing elements are shown in RED (FF0000)
     - All other elements have NO COLOR (neutral/grey display)
@@ -176,12 +180,12 @@ def export_to_bcf(clasher: Clasher, ifc_files: list[str], output_file: str) -> N
         from pathlib import Path
         import tempfile
         import os
-        
+
         # Get clash information
         clash_set = clasher.clash_sets[0]
         clashes_dict = clash_set.get("clashes", {})
         clash_name = clash_set.get("name", "Clashes")
-        
+
         # Collect all clashing element GUIDs
         clashing_guids = set()
         for clash_id, clash_data in clashes_dict.items():
@@ -191,22 +195,22 @@ def export_to_bcf(clasher: Clasher, ifc_files: list[str], output_file: str) -> N
                 clashing_guids.add(a_guid)
             if b_guid:
                 clashing_guids.add(b_guid)
-        
+
         if not clashing_guids:
             return
-        
+
         # Create a temporary directory for BCF contents
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir_path = Path(tmpdir)
-            
+
             # Create BCF structure directories
             (tmpdir_path / "Topics").mkdir(exist_ok=True)
-            
+
             # Create a unique topic GUID
             topic_guid = str(uuid.uuid4())
             topic_dir = tmpdir_path / "Topics" / topic_guid
             topic_dir.mkdir(exist_ok=True)
-            
+
             # Create markup.bcf (XML file with topic metadata)
             markup_content = f'''<?xml version="1.0" encoding="UTF-8"?>
 <Topic Guid="{topic_guid}" TopicType="Clash" Priority="High">
@@ -215,9 +219,9 @@ def export_to_bcf(clasher: Clasher, ifc_files: list[str], output_file: str) -> N
     <CreationDate>2026-06-03T00:00:00</CreationDate>
     <CreatedBy>Clash Detector</CreatedBy>
 </Topic>'''
-            
+
             (topic_dir / "markup.bcf").write_text(markup_content)
-            
+
             # Create viewpoint.bcfv (Visualization settings with colors)
             viewpoint_guid = str(uuid.uuid4())
             viewpoint_content = f'''<?xml version="1.0" encoding="UTF-8"?>
@@ -225,15 +229,15 @@ def export_to_bcf(clasher: Clasher, ifc_files: list[str], output_file: str) -> N
     <Components>
         <ViewSetupHints OpeningsVisible="true" SpacesVisible="true" ShadedMode="true" />
 '''
-            
+
             # Add clashing elements in RED (RGB: 1.0, 0.0, 0.0)
             for guid in clashing_guids:
                 viewpoint_content += f'''        <Component Guid="{guid}" Visible="true">
             <Color A="1.0" R="1.0" G="0.0" B="0.0" />
         </Component>
 '''
-            
-            viewpoint_content += '''    </Components>
+
+            viewpoint_content += """    </Components>
     <Viewpoint>
         <Camera>
             <CameraViewPoint>0 0 100</CameraViewPoint>
@@ -243,30 +247,30 @@ def export_to_bcf(clasher: Clasher, ifc_files: list[str], output_file: str) -> N
         <Lines />
         <ClippingPlanes />
     </Viewpoint>
-</VisualizationInfo>'''
-            
+</VisualizationInfo>"""
+
             (topic_dir / "viewpoint.bcfv").write_text(viewpoint_content)
-            
+
             # Create project.bcf
-            project_content = '''<?xml version="1.0" encoding="UTF-8"?>
-<Project name="Clash Detection" />'''
-            
+            project_content = """<?xml version="1.0" encoding="UTF-8"?>
+<Project name="Clash Detection" />"""
+
             (tmpdir_path / "project.bcf").write_text(project_content)
-            
+
             # Create bcf.version
-            version_content = '''<?xml version="1.0" encoding="UTF-8"?>
-<Version VersionId="3.0" />'''
-            
+            version_content = """<?xml version="1.0" encoding="UTF-8"?>
+<Version VersionId="3.0" />"""
+
             (tmpdir_path / "bcf.version").write_text(version_content)
-            
+
             # Create the BCF ZIP file
-            with zipfile.ZipFile(output_file, 'w', zipfile.ZIP_DEFLATED) as bcf_zip:
+            with zipfile.ZipFile(output_file, "w", zipfile.ZIP_DEFLATED) as bcf_zip:
                 for root, dirs, files in os.walk(tmpdir_path):
                     for file in files:
                         file_path = Path(root) / file
                         arcname = file_path.relative_to(tmpdir_path)
                         bcf_zip.write(file_path, arcname)
-        
+
     except Exception as e:
         # If BCF export fails, silently continue - clash detection already succeeded
         pass
@@ -277,37 +281,39 @@ def align_ifc_files(
     output_dir: str,
 ) -> bool:
     """Align IFC files using IfcPlacementAligner.
-    
+
     Args:
         ifc_dir: Directory containing source IFC files
         output_dir: Directory to save aligned IFC files
-        
+
     Returns:
         True if alignment succeeds, False otherwise
     """
     try:
         # Import IfcPlacementAligner from local folder
-        sys.path.insert(0, str(Path(__file__).parent.parent / "IfcPlacementAligner" / "src"))
+        sys.path.insert(
+            0, str(Path(__file__).parent.parent / "IfcPlacementAligner" / "src")
+        )
         from ifcplacementaligner import modelAligner
-        
+
         ifc_source = Path(ifc_dir)
         if not ifc_source.exists():
             print(f"✗ Source IFC directory not found: {ifc_dir}")
             return False
-        
+
         ifc_files = sorted(ifc_source.glob("*.ifc"))
         if not ifc_files:
             print(f"✗ No IFC files found in {ifc_dir}")
             return False
-        
+
         print(f"\nFound {len(ifc_files)} IFC file(s) to align:")
         for f in ifc_files:
             print(f"  • {f.name}")
-        
+
         # Create output directory
         output_path = Path(output_dir)
         output_path.mkdir(parents=True, exist_ok=True)
-        
+
         # Step 1: Gather models
         print(f"\n[1/3] Gathering model information...")
         models_json = output_path / "ifc_models.json"
@@ -316,13 +322,13 @@ def align_ifc_files(
                 [str(ifc_source)],
                 str(models_json),
                 base_path=str(ifc_source),
-                prompt_func=None  # Auto-confirm (force mode)
+                prompt_func=None,  # Auto-confirm (force mode)
             )
             print(f"      ✓ Gathered {len(ifc_files)} models")
         except Exception as e:
             print(f"      ✗ Failed to gather models: {str(e)}")
             return False
-        
+
         # Step 2: Analyze transformations
         print(f"[2/3] Analyzing grid alignment...")
         transformations_json = output_path / "transformations.json"
@@ -331,11 +337,13 @@ def align_ifc_files(
                 str(models_json),
                 str(transformations_json),
                 base_path=str(ifc_source),
-                prompt_func=None  # Auto-confirm
+                prompt_func=None,  # Auto-confirm
             )
             valid = sum(1 for t in transformations if t.is_valid)
-            print(f"      ✓ Analysis complete: {valid}/{len(transformations)} models have valid grids")
-            
+            print(
+                f"      ✓ Analysis complete: {valid}/{len(transformations)} models have valid grids"
+            )
+
             # Show which models failed
             failed = [t for t in transformations if not t.is_valid]
             if failed:
@@ -346,7 +354,7 @@ def align_ifc_files(
         except Exception as e:
             print(f"      ✗ Failed to analyze transformations: {str(e)}")
             return False
-        
+
         # Step 3: Apply transformations
         print(f"[3/3] Applying transformations...")
         try:
@@ -356,11 +364,13 @@ def align_ifc_files(
                 base_path=str(ifc_source),
                 copy_untransformed=True,
                 prompt_func=None,
-                force_ifc=True
+                force_ifc=True,
             )
             success = sum(1 for _, s, _ in results if s)
-            print(f"      ✓ Transformation complete: {success}/{len(results)} models transformed")
-            
+            print(
+                f"      ✓ Transformation complete: {success}/{len(results)} models transformed"
+            )
+
             # Show which files succeeded and which failed
             if success < len(results):
                 failed_results = [(p, s, m) for p, s, m in results if not s]
@@ -371,14 +381,14 @@ def align_ifc_files(
         except Exception as e:
             print(f"      ✗ Failed to apply transformations: {str(e)}")
             return False
-        
+
         # Clean up intermediate JSON files
         models_json.unlink(missing_ok=True)
         transformations_json.unlink(missing_ok=True)
-        
+
         print(f"✓ Alignment completed. Aligned files saved to {output_dir}")
         return True
-        
+
     except ImportError as e:
         print(f"✗ Failed to import IfcPlacementAligner: {str(e)}")
         return False
@@ -389,27 +399,31 @@ def align_ifc_files(
 
 def _clean_aligned_ifc_files(ifc_dir: str) -> bool:
     """Clean aligned IFC files to remove property sets and keep only geometry.
-    
+
     This is done in-place on the .aligned IFC files to speed up clash detection.
-    
+
     Args:
         ifc_dir: Directory containing IFC files to clean
-        
+
     Returns:
         True if successful, False otherwise
     """
     try:
         ifc_path = Path(ifc_dir)
         ifc_files = sorted(ifc_path.glob("*.ifc"))
-        
+
         if not ifc_files:
             return True
-        
+
         print(f"\nCleaning {len(ifc_files)} IFC file(s) for faster clash detection:")
-        
+
         for i, ifc_file_path in enumerate(ifc_files, 1):
             try:
-                print(f"  [{i}/{len(ifc_files)}] {ifc_file_path.name}...", end=" ", flush=True)
+                print(
+                    f"  [{i}/{len(ifc_files)}] {ifc_file_path.name}...",
+                    end=" ",
+                    flush=True,
+                )
                 ifc_file = ifcopenshell.open(str(ifc_file_path))
                 _clean_ifc_for_clash_detection(ifc_file)
                 output_path = str(ifc_file_path)
@@ -419,17 +433,15 @@ def _clean_aligned_ifc_files(ifc_dir: str) -> bool:
                 print(f"⚠ ({str(e)})")
                 # Continue with other files even if one fails
                 pass
-        
+
         return True
-        
+
     except Exception as e:
         print(f"✗ Failed to clean IFC files: {str(e)}")
         return False
 
 
-def preload_ifcs(
-    clasher: Clasher, ifc_files: list[str]
-) -> None:
+def preload_ifcs(clasher: Clasher, ifc_files: list[str]) -> None:
     """Load all IFCs once, before any clash processing starts."""
     total = len(ifc_files)
     for i, p in enumerate(ifc_files, 1):
@@ -449,7 +461,7 @@ def run_pairwise_clash_detection(
 ) -> bool:
     try:
         ifc_files = find_ifc_files(ifc_dir)
-        
+
         print(f"\nFound {len(ifc_files)} IFC file(s):")
         for f in ifc_files:
             print(f"  • {Path(f).name}")
@@ -484,14 +496,14 @@ def run_pairwise_clash_detection(
             return True
 
         # Calculate total pairs
-        total_pairs = sum(1 for i in range(len(ifc_files)) for _ in ifc_files[i + 1:])
+        total_pairs = sum(1 for i in range(len(ifc_files)) for _ in ifc_files[i + 1 :])
         pair_count = 0
         total_clashes = 0
 
         print(f"\nRunning clash detection on {total_pairs} file pair(s):")
 
         for i, file_a in enumerate(ifc_files):
-            for file_b in ifc_files[i + 1:]:
+            for file_b in ifc_files[i + 1 :]:
                 pair_count += 1
 
                 a = _safe_stem(file_a)
@@ -506,8 +518,12 @@ def run_pairwise_clash_detection(
                 try:
                     clash_set = {
                         "name": f"{a} vs {b}",
-                        "a": [{"file": file_a}],  # Run clash detection on cleaned/aligned files
-                        "b": [{"file": file_b}],  # Run clash detection on cleaned/aligned files
+                        "a": [
+                            {"file": file_a}
+                        ],  # Run clash detection on cleaned/aligned files
+                        "b": [
+                            {"file": file_b}
+                        ],  # Run clash detection on cleaned/aligned files
                         "mode": "collision",
                         "allow_touching": False,
                     }
@@ -517,8 +533,12 @@ def run_pairwise_clash_detection(
 
                     # Now update the file references to the original files for JSON/BCF output
                     if original_file_map and clash_set.get("clashes"):
-                        clash_set["a"] = [{"file": original_file_map.get(file_a, file_a)}]
-                        clash_set["b"] = [{"file": original_file_map.get(file_b, file_b)}]
+                        clash_set["a"] = [
+                            {"file": original_file_map.get(file_a, file_a)}
+                        ]
+                        clash_set["b"] = [
+                            {"file": original_file_map.get(file_b, file_b)}
+                        ]
 
                     if export_format.lower() == "json":
                         export_pair_json(clasher.clash_sets[0], output_file)
@@ -527,7 +547,9 @@ def run_pairwise_clash_detection(
 
                     pair_clashes = len(clasher.clash_sets[0].get("clashes", {}) or {})
                     total_clashes += pair_clashes
-                    _print_progress(pair_count, total_pairs, f"{a} vs {b} ({pair_clashes} clashes)")
+                    _print_progress(
+                        pair_count, total_pairs, f"{a} vs {b} ({pair_clashes} clashes)"
+                    )
 
                 except Exception as e:
                     _print_progress(pair_count, total_pairs, f"✗ {a} vs {b}")
@@ -536,7 +558,7 @@ def run_pairwise_clash_detection(
         print(f"\n✓ Clash detection complete:")
         print(f"  • Pairs processed: {pair_count}/{total_pairs}")
         print(f"  • Total clashes found: {total_clashes}")
-        
+
         return True
 
     except FileNotFoundError as e:
@@ -545,4 +567,3 @@ def run_pairwise_clash_detection(
     except Exception as e:
         print(f"✗ Error: {str(e)}")
         return False
-
