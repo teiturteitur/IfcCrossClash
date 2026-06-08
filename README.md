@@ -62,7 +62,7 @@ uv run main.py -f json
 | Option | Description |
 |--------|-------------|
 | `--ifc-dir DIR` | Directory containing IFC files (default: `ifc`) |
-| `-f {json,bcf}` | Output format (default: `json`) |
+| `-f {json}` | Output format (default: `json`) |
 | `--out-dir DIR` | Output directory (default: `clash_outputs`) |
 | `--prefix NAME` | Output filename prefix (default: `Clash`) |
 | `--align` | Enable IFC alignment before clash detection |
