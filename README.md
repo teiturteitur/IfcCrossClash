@@ -37,7 +37,7 @@ Place your IFC files in the `ifc/` folder, then run:
 
 ```bash
 # Run clash detection without alignment (fastest, recommended)
-uv run python main.py
+uv run main.py
 
 # Output: clash_outputs/*.json
 ```
@@ -47,19 +47,14 @@ uv run python main.py
 To align models to a common coordinate system before clash detection:
 
 ```bash
-uv run python main.py --align
+uv run main.py --align
 ```
 
 ### Export Formats
 
 **JSON format** (default - detailed technical data):
 ```bash
-uv run python main.py -f json
-```
-
-**BCF format** (visual reports for Bonsai):
-```bash
-uv run python main.py -f bcf
+uv run main.py -f json
 ```
 
 ### All Available Options
@@ -79,16 +74,16 @@ uv run python main.py -f bcf
 
 ```bash
 # Align and keep the aligned files for inspection
-uv run python main.py --align --keep-aligned
+uv run main.py --align --keep-aligned
 
 # Only clean IFC files (remove properties/materials)
-uv run python main.py --clean-only
+uv run main.py --clean-only
 
 # Run with custom directories
-uv run python main.py --ifc-dir models --out-dir results
+uv run main.py --ifc-dir models --out-dir results
 
 # Skip alignment and use files directly
-uv run python main.py
+uv run main.py
 ```
 
 ## How It Works
@@ -136,69 +131,15 @@ uv run python main.py
 }
 ```
 
-### BCF Output
-
-Generates a `.bcfzip` file with:
-- **Red elements**: All clashing elements (easy to spot)
-- **Grey elements**: Non-clashing elements (for context)
-- **Viewpoint**: Overview of the entire model
-- Compatible with Bonsai and other BCF viewers
-
-## Customization
-
-### BCF Visualization
-
-Edit `src/1105_clash.py`, function `export_to_bcf()` to customize:
-- **Color scheme**: Change RGB values for clashing elements
-- **Viewpoint**: Adjust camera position and direction
-- **Visibility**: Control which elements are shown
-
-See `BCF_CUSTOMIZATION_GUIDE.md` for details.
-
-## Architecture
-
-```
-IFC-Clash-Detector/
-├── main.py                     # Entry point
-├── src/
-│   └── 1105_clash.py           # Core logic
-├── IfcPlacementAligner/        # Alignment library (separate repo)
-├── ifc/                        # Input: place IFC files here
-├── clash_outputs/              # Output: generated reports
-├── pyproject.toml              # Dependencies
-└── README.md                   # This file
-```
 
 ## Dependencies
 
 - **ifcopenshell**: IFC file parsing and clash detection
-- **bcf-client**: BCF format export
+- **bcf-client**: BCF format export (Not implemented yet)
 - **ifcpatch**: IFC file cleaning and manipulation
 - **typer**: CLI argument parsing
 - **loguru**: Structured logging
 - **numpy**: Numerical computations
-
-## Troubleshooting
-
-### No clashes detected
-- Verify IFC files are valid (can open in Bonsai)
-- Try with alignment: `--align`
-- Check element types are supported
-
-### Alignment fails
-- Ensure IFC files have proper placement data
-- Try running without `--align` first
-
-### BCF files won't open
-- Ensure Bonsai is updated to latest version
-- Try JSON export first to verify clash detection works
-
-## Contributing
-
-Contributions are welcome! Please:
-1. Test changes with sample IFC files
-2. Update documentation
-3. Follow the existing code style
 
 ## License
 
@@ -206,6 +147,6 @@ See LICENSE file for details.
 
 ## Credits
 
-- Alignment functionality powered by [IfcPlacementAligner](https://github.com/IfcOpenShell/IfcPlacementAligner)
-- Clash detection via [ifcopenshell](https://ifcopenshell.org)
-- BCF format via [bcf-client](https://github.com/IfcOpenShell/BCF)
+- Alignment functionality powered by [IfcPlacementAligner](https://github.com/KaareH/IfcPlacementAligner)
+- Clash detection via [ifcopenshell](https://github.com/IfcOpenShell/IfcOpenShell)
+
