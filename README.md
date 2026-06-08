@@ -9,7 +9,6 @@ A powerful, fast pairwise IFC clash detection tool with alignment, cleaning, and
 - **Performance Optimization**: Automatically cleans IFC files (removes properties/materials) for faster detection
 - **Multiple Export Formats**:
   - **JSON**: Detailed clash reports with element GUIDs and coordinates
-  - **BCF**: Visual reports with color-coded elements (red = clashing, grey = neutral)
 - **Configurable Workflow**: Run alignment, clash detection, or cleaning separately
 
 ## Installation
