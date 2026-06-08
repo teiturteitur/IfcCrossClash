@@ -3,6 +3,7 @@
 A simple, fast pairwise IFC clash detection tool with alignment, cleaning, and BCF export capabilities.
 
 **PLEASE NOTE THAT THE INPUT IFC FILES GET THEIR PSETS, MATERIALS ETC. REMOVED**
+
 **THIS WILL BE FIXED SOON**
 
 ## Features
