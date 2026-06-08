@@ -97,8 +97,9 @@ uv run python main.py
 ### Workflow (Without Alignment)
 
 1. **Load IFC Files**: Reads all `.ifc` files from `ifc-dir`
-2. **Clash Detection**: Runs pairwise comparison on all models
-3. **Export Results**: Generates JSON or BCF reports
+2. **Cleaning IFC Files**: Removes all `psets`, `materials`, etc., for faster clash detection.
+3. **Clash Detection**: Runs pairwise comparison on all models
+4. **Export Results**: Generates JSON or BCF reports
 
 ### Workflow (With `--align`)
 
