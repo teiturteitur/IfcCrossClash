@@ -1,6 +1,6 @@
 # IFC Clash Detector
 
-A powerful, fast pairwise IFC clash detection tool with alignment, cleaning, and BCF export capabilities.
+A simple, fast pairwise IFC clash detection tool with alignment, cleaning, and BCF export capabilities.
 
 ## Features
 
