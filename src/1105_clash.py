@@ -20,6 +20,7 @@ from pathlib import Path
 
 import ifcopenshell
 from ifcclash.ifcclash import Clasher, ClashSettings
+from reportWriter import create_clash_tables
 
 
 # Try to import BcfGenerator first, but fall back to SimpleBcfGenerator
@@ -558,6 +559,9 @@ def run_pairwise_clash_detection(
         print(f"\n✓ Clash detection complete:")
         print(f"  • Pairs processed: {pair_count}/{total_pairs}")
         print(f"  • Total clashes found: {total_clashes}")
+
+        print("Creating Reports:")
+        create_clash_tables(input_dir=out_dir)
 
         return True
 

@@ -6,6 +6,8 @@ import shutil
 import sys
 from pathlib import Path
 
+sys.path.append(str(Path(__file__).parent / "src"))
+
 # Load module with non-standard name using importlib
 _spec = importlib.util.spec_from_file_location(
     "clash_module", str(Path(__file__).parent / "src" / "1105_clash.py")
