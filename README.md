@@ -14,6 +14,7 @@ A simple, fast pairwise IFC clash detection tool with alignment, cleaning, and B
 - **Multiple Export Formats**:
   - **JSON**: Detailed clash reports with element GUIDs and coordinates
 - **Configurable Workflow**: Run alignment, clash detection, or cleaning separately
+- **Excel Report**: General report of JSON results.
 
 ## Installation
 
