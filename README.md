@@ -27,7 +27,7 @@ A simple, fast pairwise IFC clash detection tool with alignment, cleaning, and B
 ```bash
 # Clone the repository
 git clone https://github.com/teiturteitur/IfcCrossClash.git
-cd IFC-Clash-Detector
+cd IfcCrossClash
 
 # Install dependencies using uv
 uv sync
