@@ -136,6 +136,9 @@ uv run main.py
 }
 ```
 
+### Excel Output
+
+An Excel report is created with an overview of the amount of times each element clashes with other elements.
 
 ## Dependencies
 
